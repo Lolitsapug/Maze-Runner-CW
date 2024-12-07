@@ -101,7 +101,6 @@ def explore(runner,maze,goal):
     actions = []
     if goal == None:
         goal = get_dimensions(maze)
-    print(goal)
     
     while get_x(runner) != goal[0] or get_y(runner) != goal[1]:
         actions.append(move(runner,maze)[1])
@@ -109,6 +108,7 @@ def explore(runner,maze,goal):
 
     print("Reached Goal")
     print(actions)
+    return actions
 
 def display(maze,runner):
     test = []
@@ -150,18 +150,9 @@ def display(maze,runner):
             test[h-y*3].append(wall)
 
 
-    index = ["N","E","S",""].index(get_orientation(runner))
+    index = ["N","E","S","W"].index(get_orientation(runner))
     playerSymbols = ["^",">","v","<"]
     test[get_dimensions(maze)[1]*3-runner.y*3+1][runner.x*3+1] = playerSymbols[index]
 
     for array in test:
         print(" ".join(array))
-
-player = create_runner()
-maze = create_maze()
-maze = add_vertical_wall(maze,2,2)
-maze = add_vertical_wall(maze,2,3)
-maze = add_horizontal_wall(maze,2,2)
-maze = add_horizontal_wall(maze,2,3)
-
-display(maze,player)

@@ -2,8 +2,6 @@ import sys,time
 sys.path.append('.')
 from classes.maze import *
 
-runners = []
-
 class Runner:
     def __init__(self, x, y, orientation):
         self.x = x

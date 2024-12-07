@@ -25,7 +25,7 @@ def shortest_path(maze, starting=None, goal=None) -> list[tuple[int, int]]:
     return remove_tuple_duplicates(positions)
 
 
-def remove_tuple_duplicates(arr):
+def remove_duplicates(arr):
     seen = {}
     i = 0
     
@@ -43,8 +43,9 @@ def remove_tuple_duplicates(arr):
     return arr
 
 # Test the function
-#arr = [(0, 1), (0, 2), (0, 3), (0, 2), (1, 2), (2, 2), (1, 2), (1, 1), (1,0)]
-#new_arr = remove_tuple_duplicates(arr)
-#print(new_arr)  # Output should be [(0, 1), (0, 2), (1, 2), (2, 2), (1, 1)]
+#arr = [(0, 1), (0, 2), (0, 3), (0, 2), (1, 2), (2, 2), (1, 2), (1, 1), (1, 0)]
+#new_arr = removeduplicates(arr)
+#print(new_arr)  
+#Output should be [(0, 1), (0, 2), (1, 2), (2, 2), (1, 1), (1, 0)]
 
 

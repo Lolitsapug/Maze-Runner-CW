@@ -108,7 +108,7 @@ def explore(runner,maze,goal):
     print(actions)
     return actions
 
-def display(maze,runner):
+def display(maze,runner=None):
     test = []
     wall = "#"
     empty = "."
@@ -147,10 +147,10 @@ def display(maze,runner):
                 test[h-y*3].append(wall)
             test[h-y*3].append(wall)
 
-
-    index = ["N","E","S","W"].index(get_orientation(runner))
-    playerSymbols = ["^",">","v","<"]
-    test[get_dimensions(maze)[1]*3-runner.y*3+1][runner.x*3+1] = playerSymbols[index]
+    if runner != None:
+        index = ["N","E","S","W"].index(get_orientation(runner))
+        playerSymbols = ["^",">","v","<"]
+        test[get_dimensions(maze)[1]*3-runner.y*3+1][runner.x*3+1] = playerSymbols[index]
 
     for array in test:
         print(" ".join(array))

@@ -43,7 +43,7 @@ def add_vertical_wall(maze, y_coordinate, vertical_line):
 
 def get_dimensions(maze) -> tuple[int, int]:
     #(width,height)
-    return (len(maze[0])-1,len(maze)-1)
+    return (len(maze[0]),len(maze))
 
 def get_walls(maze, x_coordinate: int, y_coordinate: int) -> tuple[bool, bool, bool, bool]:
     #(North,East,South,West)

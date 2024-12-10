@@ -1,6 +1,6 @@
-import sys,time
+import sys,csv
 sys.path.append('.')
-from classes.maze import *
+from maze import *
 
 class Runner:
     def __init__(self, x, y, orientation):
@@ -35,7 +35,6 @@ class Runner:
 
 def create_runner(x: int=0, y: int=0, orientation: str="N"):
     return Runner(x,y,orientation)
-
 
 def get_x(runner):
     return runner.x
@@ -92,33 +91,44 @@ def move(runner, maze):
         actions = "RRF"
     
 
-    print(actions)
     return (runner,actions)
 
-def explore(runner,maze,goal):
+def explore(runner,maze,goal=None):
     actions = []
+    log = []
     if goal == None:
-        goal = get_dimensions(maze)
-    
-    while get_x(runner) != goal[0] or get_y(runner) != goal[1]:
-        actions.append(move(runner,maze)[1])
-        print((get_x(runner),get_y(runner)))
+        goal = get_dimensions(maze)[0]-1, get_dimensions(maze)[1]-1
 
-    print("Reached Goal")
-    print(actions)
-    return actions
+    while get_x(runner) != goal[0] or get_y(runner) != goal[1]:
+        position = (get_x(runner), get_y(runner))
+        action = move(runner,maze)[1]
+        actions.append(action)
+        log.append((position[0], position[1], action))
+        display(maze,runner)
+    #print("Reached Goal")
+    #print(actions)
+
+    with open("exploration.csv", mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Step", "x-coordinate", "y-coordinate", "Actions"])
+        step = 1
+        for x, y, action in log:
+            writer.writerow([step, x, y, action])
+            step += 1
+   
+    return "".join(actions)
 
 def display(maze,runner=None):
     test = []
     wall = "#"
     empty = "."
-    for i in range((get_dimensions(maze)[1]+1)*3):
+    for i in range((get_dimensions(maze)[1])*3):
         test.append([])
 
-    h = get_dimensions(maze)[1]*3
+    h = (get_dimensions(maze)[1]-1)*3
 
-    for y in range(get_dimensions(maze)[1]+1):
-        for x in range(get_dimensions(maze)[0]+1):
+    for y in range(get_dimensions(maze)[1]):
+        for x in range(get_dimensions(maze)[0]):
             walls = get_walls(maze,x,y)            
             test[h-y*3+2].append(wall)
             if not walls[2]:
@@ -150,7 +160,68 @@ def display(maze,runner=None):
     if runner != None:
         index = ["N","E","S","W"].index(get_orientation(runner))
         playerSymbols = ["^",">","v","<"]
-        test[get_dimensions(maze)[1]*3-runner.y*3+1][runner.x*3+1] = playerSymbols[index]
+        test[get_dimensions(maze)([1]-1)*3-runner.y*3+1][runner.x*3+1] = playerSymbols[index]
+
+    for array in test:
+        print(" ".join(array))
+
+def display_with_path(maze, positions):
+    test = []
+    wall = "#"
+    empty = "."
+    start_symbol = "\033[93m□\033[0m"
+    path_symbol = "\033[91m□\033[0m"
+    end_symbol = "\033[92m□\033[0m"
+
+    for i in range((get_dimensions(maze)[1]) * 3):
+        test.append([])
+
+    height = (get_dimensions(maze)[1] - 1) * 3
+
+    for y in range(get_dimensions(maze)[1]):
+        for x in range(get_dimensions(maze)[0]):
+            walls = get_walls(maze, x, y)
+            test[height-y*3+2].append(wall)
+            if not walls[2]:
+                test[height-y*3+2].append(empty)
+            else:
+                test[height-y*3+2].append(wall)
+            test[height-y*3+2].append(wall)
+
+            if not walls[3]:
+                test[height-y*3 + 1].append(empty)
+            else:
+                test[height - y*3 + 1].append(wall)
+            if walls == (True, True, True, True):
+                test[height - y*3 + 1].append(wall)
+            else:
+                test[height - y*3 + 1].append("+")
+            if not walls[1]:
+                test[height - y*3 + 1].append(empty)
+            else:
+                test[height - y*3 + 1].append(wall)
+
+            test[height - y*3].append(wall)
+            if not walls[0]:
+                test[height - y*3].append(empty)
+            else:
+                test[height - y*3].append(wall)
+            test[height - y*3].append(wall)
+
+    # Mark the path in the maze
+    for pos in positions:
+        x, y = pos  #positions have the format (x, y)
+        test[height - y*3 + 1][x*3 + 1] = path_symbol
+
+    for index, pos in enumerate(positions): 
+        x, y= pos 
+        if index == 0: 
+            test[height-y*3+1][x*3+1] = start_symbol #first symbol
+        elif index == len(positions) - 1: 
+            test[height-y*3+1][x*3+1] = end_symbol #last symbol
+        else: 
+            if test[height-y*3+1][x*3+1] == empty: 
+                test[height-y*3+1][x*3+1] = path_symbol
 
     for array in test:
         print(" ".join(array))

@@ -1,32 +1,68 @@
-"""
-Created on Wed Nov 20 15:32:28 2024
-"""
+def dfs_explore(runner, maze, goal=None):
+    if goal is None:
+        goal = get_dimensions(maze)  # Set goal to maze dimensions if not provided
 
-__author__ = "Son Hoang"
-__copyright__ = "Copyright (c) 2024, University of Southampton"
-__credits__ = ["Son Hoang"]
-__licence__ = "MIT"
-__version__ = "1.0"
-__maintainer__ = "Son Hoang"
-__email__ = "T.S.Hoang@soton.ac.uk"
-__status__ = "Prototype"
+    stack = [(get_x(runner), get_y(runner))]  # Initialize stack with starting position
+    visited = set()  # Set to track visited positions
+    parent = {}  # Dictionary to track parent of each position for backtracking
+    actions_log = []  # List to log actions
 
-import pytest
+    # Function to get valid neighbors based on current position's walls
+    def get_neighbors(position):
+        x, y = position
+        neighbors = []
+        walls = get_walls(maze, x, y)
+        if not walls[0]:  # North
+            neighbors.append((x, y + 1))
+        if not walls[1]:  # East
+            neighbors.append((x + 1, y))
+        if not walls[2]:  # South
+            neighbors.append((x, y - 1))
+        if not walls[3]:  # West
+            neighbors.append((x - 1, y))
+        return neighbors
 
-from maze import get_dimensions, get_walls  # type: ignore
-from maze_runner import maze_reader  # type: ignore
+    while stack:
+        current = stack.pop()  # Get the current position from the stack
+        if current in visited:
+            continue  # Skip if already visited
+        visited.add(current)  # Mark current position as visited
+        if current == goal:
+            break  # Stop if goal is reached
 
+        # Explore neighbors
+        for neighbor in get_neighbors(current):
+            if neighbor not in visited:
+                stack.append(neighbor)
+                parent[neighbor] = current  # Track parent for backtracking
 
-def test_maze_reader_maze1() -> None:
-    maze = maze_reader("maze1.mz")
-    assert get_dimensions(maze) == (2, 1)
-    assert get_walls(maze, 0, 0) == (True, False, True, True)
-    assert get_walls(maze, 1, 0) == (True, True, True, False)
+        runner.x, runner.y = current  # Update runner's position
+        actions = move_to(current, get_orientation(runner), parent.get(current))
+        actions_log.append((current[0], current[1], actions))  # Log actions
+        display(maze, runner)  # Display maze
 
+    print("Reached Goal")
+    return actions_log
 
-def test_maze_reader_maze2() -> None:
-    with pytest.raises(ValueError):
-        maze = maze_reader("maze2.mz")
+# Function to generate actions to move from previous position to current position
+def move_to(position, orientation, previous_position):
+    x, y = position
+    px, py = previous_position if previous_position else (None, None)
+    actions = ""
 
-test_maze_reader_maze1()
-test_maze_reader_maze2()
+    if px is not None and py is not None:
+        if x > px:
+            # Moving East
+            actions = "RF" if orientation == "N" else "F" if orientation == "E" else "LF" if orientation == "S" else "RRF"
+        elif x < px:
+            # Moving West
+            actions = "LF" if orientation == "N" else "RRF" if orientation == "E" else "RF" if orientation == "S" else "F"
+        elif y > py:
+            # Moving North
+            actions = "F" if orientation == "N" else "LF" if orientation == "E" else "RRF" if orientation == "S" else "RF"
+        elif y < py:
+            # Moving South
+            actions = "RRF" if orientation == "N" else "RF" if orientation == "E" else "F" if orientation == "S" else "LF"
+
+    return actions
+
